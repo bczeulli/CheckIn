@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo | Vôlei Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-950 border-b border-slate-800 py-6 px-4 shadow-md">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2.5 rounded-xl shadow-inner text-2xl">⚙️</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Painel do Administrador</h1>
+                    <p class="text-xs text-slate-400">Gerenciamento avançado de aulas e atletas</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3.5 py-2 rounded-xl transition-colors">
+                    Ver Site
+                </a>
+                <button onclick="fazerLogout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-medium px-3.5 py-2 rounded-xl transition-colors cursor-pointer">
+                    Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-8">
+
+        <!-- Formulário para Criar Aulas em Massa -->
+        <section class="bg-slate-800/80 backdrop-blur border border-slate-700/60 p-6 rounded-2xl shadow-xl space-y-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <span>➕</span> Cadastrar Aulas (Criação em Massa)
+                </h2>
+                <button type="button" id="btn-adicionar-card-aula" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1">
+                    <span>+ Adicionar Aula na Lista</span>
+                </button>
+            </div>
+
+            <form id="form-aulas-massa" class="space-y-4">
+                <!-- Container onde os cards de aulas em massa serão injetados -->
+                <div id="container-cards-aulas" class="space-y-4">
+                    <!-- O primeiro card padrão vem aqui -->
+                    <div class="card-aula-massa bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl relative space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                            <div class="lg:col-span-1">
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Nome da Aula</label>
+                                <input type="text" name="nome" required placeholder="Ex: Vôlei Avançado" 
+                                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Professor(a)</label>
+                                <input type="text" name="professor" required placeholder="Ex: Carlos" 
+                                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Data (DD/MM/AAAA)</label>
+                                <input type="text" name="data" required placeholder="25/10/2026" maxlength="10"
+                                    class="input-data w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Hora (Ex: 19h)</label>
+                                <input type="text" name="hora" required placeholder="19h" maxlength="3"
+                                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-400 mb-1">Limite Vagas</label>
+                                <input type="number" name="limite" required min="1" value="10" 
+                                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-900/20 text-sm cursor-pointer">
+                        Salvar Todas as Aulas no Banco
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Aulas e Gestão de Alunos (Inscrição manual + remoção) -->
+        <section>
+            <h2 class="text-lg font-semibold tracking-tight text-white mb-4">Aulas Cadastradas & Gerenciamento</h2>
+            <div id="lista-aulas-admin" class="space-y-4">
+                <div class="text-center py-12 text-slate-500">
+                    <p class="text-sm">Carregando painel administrativo...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-slate-500 border-t border-slate-800/60 mt-auto">
+        Painel Administrativo &copy; 2026
+    </footer>
+
+    <!-- SDK do Supabase e Script Admin -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

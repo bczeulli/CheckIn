@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Vôlei Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-slate-800 border border-slate-700/80 p-8 rounded-2xl shadow-2xl max-w-md w-full space-y-6">
+        <div class="text-center space-y-2">
+            <div class="bg-indigo-600/20 text-indigo-400 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-indigo-500/30">🔐</div>
+            <h1 class="text-xl font-bold text-white">Acesso ao Sistema</h1>
+            <p class="text-xs text-slate-400">Digite seu e-mail para receber o link de acesso</p>
+        </div>
+
+        <form id="form-login" class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">E-mail</label>
+                <input type="email" id="email-usuario" required placeholder="seu-email@exemplo.com" 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+            </div>
+            <button type="submit" id="btn-enviar" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-indigo-900/20 text-sm cursor-pointer">
+                Enviar Link de Acesso
+            </button>
+        </form>
+
+        <div id="mensagem-status" class="hidden text-center text-xs p-3 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-300"></div>
+
+        <div class="text-center pt-2">
+            <a href="index.html" class="text-xs text-slate-500 hover:text-slate-400 transition-colors">&larr; Voltar para a página de check-in</a>
+        </div>
+    </div>
+
+    <!-- SDK do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Inicialização segura sem risco de duplicidade de identificador
+        const SUPABASE_URL = 'https://trautmdfnnqrcpxgvjdj.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_rO3ePQkXA5SDLal_2AJWQQ_b9hFJP51';
+        
+        window.supabaseClient = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseInstance = window.supabaseClient;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabaseInstance.auth.getSession();
+            if (session) {
+                await redirecionarUsuario(session.user);
+            }
+        });
+
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email-usuario').value.trim();
+            const btn = document.getElementById('btn-enviar');
+            const statusBox = document.getElementById('mensagem-status');
+
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            statusBox.classList.remove('hidden');
+            statusBox.textContent = 'Enviando link de acesso...';
+
+            const { error } = await supabaseInstance.auth.signInWithOtp({
+                email: email,
+                options: {
+                    emailRedirectTo: window.location.origin + '/login.html'
+                }
+            });
+
+            if (error) {
+                statusBox.textContent = 'Erro ao enviar o link: ' + error.message;
+                statusBox.className = 'text-center text-xs p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400';
+                btn.disabled = false;
+                btn.textContent = 'Enviar Link de Acesso';
+            } else {
+                statusBox.textContent = '✅ Link enviado! Verifique seu e-mail e clique nele para entrar.';
+                statusBox.className = 'text-center text-xs p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400';
+                btn.textContent = 'Link Enviado!';
+            }
+        });
+
+        async function redirecionarUsuario(user) {
+            const { data: perfil } = await supabaseInstance
+                .from('perfis')
+                .select('is_admin')
+                .eq('id', user.id)
+                .maybeSingle();
+
+            if (perfil && perfil.is_admin === true) {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
