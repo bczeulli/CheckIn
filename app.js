@@ -2,7 +2,9 @@
 const SUPABASE_URL = 'https://trautmdfnnqrcpxgvjdj.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_rO3ePQkXA5SDLal_2AJWQQ_b9hFJP51';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Evita conflito caso a variável já exista na memória do navegador
+window.supabaseClient = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabaseClient;
 
 document.addEventListener('DOMContentLoaded', () => {
     carregarAulas();
